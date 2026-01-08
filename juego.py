@@ -7,10 +7,15 @@ alto = 480
 class Bolita(pygame.sprite.Sprite):
   def __init__(self):
     pygame.sprite.Sprite.__init__(self)
-    #Cargar Imagen
+    # Cargar Imagen
     self.image = pygame.image.load("imagenes/bolita.png")
-    #Obtener rectangulo de la imagen
+    # Escalar la imagen a 20x20 píxeles
+    self.image = pygame.transform.scale(self.image, (20, 20))
+    # Obtener rectangulo de la imagen
     self.rect = self.image.get_rect()
+    # Posición inicial centrada en pantalla
+    self.rect.centerx = ancho /2
+    self.rect.centery = alto /2
 
 # Inicializando pantalla
 pantalla = pygame.display.set_mode((ancho, alto))
