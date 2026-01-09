@@ -4,7 +4,8 @@ import pygame
 
 ancho = 640
 alto = 480
-color_azul = (0,0,64) #Color azul para el fondo.
+color_azul = (0,0,64) # Color azul para el fondo.
+color_blanco = (255,255,255) # Color Blanco para letras
 
 pygame.init()
 
@@ -49,10 +50,10 @@ class Paleta(pygame.sprite.Sprite):
   def update(self,evento):
     # Buscar si se preciono flecha izquierda
     if evento.key == pygame.K_LEFT and self.rect.left > 0:
-      self.speed = [-5,0]
+      self.speed = [-7,0]
     # si se preciono la flecha derecha
     elif evento.key == pygame.K_RIGHT and self.rect.right < ancho:
-      self.speed = [5,0]
+      self.speed = [7,0]
     else:
       self.speed = [0,0]
     # Mover en base a posicion actual y velocidad
@@ -88,7 +89,7 @@ class Muro(pygame.sprite.Group):
 # Funcion llamada tras dejar ir la bolita
 def juego_terminado():
   fuente = pygame.font.SysFont('Arial',72)
-  texto = fuente.render('Juego Terminado :( ', True, (255,255,255))
+  texto = fuente.render('Juego Terminado :( ', True, color_blanco)
   texto_rect = texto.get_rect()
   texto_rect.center = [ancho/2, alto/2]
   pantalla.blit(texto,texto_rect)
@@ -97,6 +98,14 @@ def juego_terminado():
   time.sleep(3)
   # Salir
   sys.exit
+
+def mostrar_puntuacion():
+  fuente = pygame.font.SysFont('Consolas',20)
+  texto = fuente.render(str(puntuacion).zfill(5), True, color_blanco)
+  texto_rect = texto.get_rect()
+  texto_rect.topleft = [0,0]
+  pantalla.blit(texto,texto_rect)
+
 
 # Inicializando pantalla
 pantalla = pygame.display.set_mode((ancho, alto))
@@ -110,6 +119,7 @@ pygame.key.set_repeat(30)
 bolita = Bolita()
 jugador = Paleta()
 muro = Muro(60)
+puntuacion = 0
 
 while True:
   # Establecer FPS
@@ -139,7 +149,7 @@ while True:
     else:
         bolita.speed[1] = -bolita.speed[1]
     muro.remove(ladrillo)
-
+    puntuacion += 10
 
   # Reisar si bolita sale de la pantalla
   if bolita.rect.top > alto:
@@ -147,6 +157,8 @@ while True:
 
   # Rellenar la pantalla.
   pantalla.fill(color_azul)
+  # Mostrar puntuacion
+  mostrar_puntuacion()
   # Dibujar la bolita en pantalla
   pantalla.blit(bolita.image, bolita.rect)
   # Dibujar jugador en pantalla
