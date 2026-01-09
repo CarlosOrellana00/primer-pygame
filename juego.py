@@ -19,7 +19,7 @@ class Escena:
     "Lee la lista de todos los eventos."
     pass
 
-  def actualziar(self):
+  def actualizar(self):
     "Caclulos y logica."
     pass
 
@@ -32,18 +32,15 @@ class Escena:
     self.proximaEscena = escena
 
 class Director:
-  def __init__(self, titulo = "", res = (ancho, alto)):
-    pygame.init()
-    # Inicializando pantalla.
-    pantalla = pygame.display.set_mode((ancho,alto))
-    # Configurar titulo de pantalla
+  def __init__(self, titulo, res):
+    self.pantalla = pygame.display.set_mode(res)
     pygame.display.set_caption(titulo)
-    # Crear el Reloj
-    reloj = pygame.time.Clock()
-    self.escena = None
+    self.reloj = pygame.time.Clock()
     self.escenas = {}
+    self.escena = None
 
-  def ejecutrar(self, escena_inicial, fps = 60 ):
+
+  def ejecutar(self, escena_inicial, fps = 60 ):
     self.escena = self.escenas[escena_inicial]
     jugando = True
     while jugando:
@@ -53,8 +50,7 @@ class Director:
       for evento in eventos:
         # Si se presiona la tachita de la barra del titulo.
         if evento.type == pygame.QUIT:
-          # Cerrar el juego
-          juego = False
+          jugando = False
 
       self.escena.leer_eventos(eventos)
       self.escena.actualizar()
@@ -76,9 +72,10 @@ class Director:
             self.escena = self.escenas[proximaEscena]
 
   def agregarEscena(self, escena):
-      escenaClase = 'Escena'+escena
-      escenaObj = globals()[escenaClase]
-      self.escenas[escena] = escenaObj()
+    escenaClase = 'Escena' + escena
+    escenaObj = globals()[escenaClase]
+    self.escenas[escena] = escenaObj()
+
 
 class EscenaNivel1(Escena):
     def __init__(self):
@@ -130,7 +127,7 @@ class EscenaNivel1(Escena):
             self.puntuacion += 10
 
         # Revisar si bolita sale de la pantalla.
-        if self.bolita.rect.top > ALTO:
+        if self.bolita.rect.top > alto:
             self.vidas -= 1
             self.esperando_saque = True
 
@@ -282,80 +279,9 @@ def mostrar_vidas():
   texto_rect.topright = [ancho,0]
   pantalla.blit(texto,texto_rect)
 
-# Inicializando pantalla
-pantalla = pygame.display.set_mode((ancho, alto))
-# Configurar titulo de pantalla
-pygame.display.set_caption("Juego de Ladrillos")
-# Crear Reloj
-reloj = pygame.time.Clock()
-# Ajustar repeticion de evento de tecla presionada
-pygame.key.set_repeat(30)
 
-bolita = Bolita()
-jugador = Paleta()
-muro = Muro(60)
-puntuacion = 0
-vidas = 3
-esperando_saque = True
 
-while True:
-  # Establecer FPS
-  reloj.tick(60)
-
-  # Revisar todos los eventos
-  for evento in pygame.event.get():
-    # Si se presiona la barra de titulo
-    if evento.type == pygame.QUIT:
-      sys.exit()
-    # Buscar eventos del teclado
-    elif evento.type == pygame.KEYDOWN:
-      jugador.update(evento)
-      if esperando_saque == True and evento.key == pygame.K_SPACE:
-        esperando_saque = False
-        if bolita.rect.centerx < ancho / 2:
-          bolita.speed = [3,-3]
-        else:
-          bolita.speed = [-3, -3]
-
-  # Actualizar posicion de la bolita
-  if esperando_saque == False:
-    bolita.update()
-  else:
-    bolita.rect.midbottom = jugador.rect.midtop
-  # Colision entre bolita y jugador
-  if pygame.sprite.collide_rect(bolita,jugador):
-    bolita.speed[1] = -bolita.speed[1]
-  # Colision de la bolita con el muro
-  lista = pygame.sprite.spritecollide(bolita, muro, False)
-  if lista:
-    ladrillo = lista[0]
-    cx = bolita.rect.centerx
-    if cx < ladrillo.rect.left or cx > ladrillo.rect.right:
-      bolita.speed[0] = -bolita.speed[0]
-    else:
-        bolita.speed[1] = -bolita.speed[1]
-    muro.remove(ladrillo)
-    puntuacion += 10
-
-  # Reisar si bolita sale de la pantalla
-  if bolita.rect.top > alto:
-    vidas -= 1
-    esperando_saque = True
-
-  # Rellenar la pantalla.
-  pantalla.fill(color_azul)
-  # Mostrar puntuacion
-  mostrar_puntuacion()
-  # Mostrar vidas
-  mostrar_vidas()
-  # Dibujar la bolita en pantalla
-  pantalla.blit(bolita.image, bolita.rect)
-  # Dibujar jugador en pantalla
-  pantalla.blit(jugador.image, jugador.rect)
-  # Dibujar los ladrillos del muro
-  muro.draw(pantalla)
-  # Actualizar los elementos en pantalla
-  pygame.display.flip()
-
-  if vidas <= 0:
-    juego_terminado()
+if __name__ == "__main__":
+  director = Director("Juego de Ladrillos", (ancho, alto))
+  director.agregarEscena("Nivel1")
+  director.ejecutar("Nivel1")
