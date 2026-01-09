@@ -61,7 +61,7 @@ class Ladrillo(pygame.sprite.Sprite):
     # Cargar Imagen
     self.image = pygame.image.load("imagenes/ladrillo.png")
     # Escalar la imagen a 20x20 píxeles
-    self.image = pygame.transform.scale(self.image, (45, 20))
+    self.image = pygame.transform.scale(self.image, (64, 20))
     # Obtener rectangulo de la imagen
     self.rect = self.image.get_rect()
     # Posicion inicial, provista externamente
@@ -78,6 +78,9 @@ class Muro(pygame.sprite.Group):
       self.add(ladrillo)
 
       pos_x += ladrillo.rect.width
+      if pos_x >= ancho:
+        pos_x = 0
+        pos_y += ladrillo.rect.height
 
 # Inicializando pantalla
 pantalla = pygame.display.set_mode((ancho, alto))
@@ -90,7 +93,7 @@ pygame.key.set_repeat(30)
 
 bolita = Bolita()
 jugador = Paleta()
-muro = Muro(14)
+muro = Muro(60)
 
 while True:
   # Establecer FPS
@@ -107,6 +110,21 @@ while True:
 
   # Actualizar posicion de la bolita
   bolita.update()
+  # Colision entre bolita y jugador
+  if pygame.sprite.collide_rect(bolita,jugador):
+    bolita.speed[1] = -bolita.speed[1]
+  # Colision de la bolita con el muro
+  lista = pygame.sprite.spritecollide(bolita, muro, False)
+  if lista:
+    ladrillo = lista[0]
+    cx = bolita.rect.centerx
+    if cx < ladrillo.rect.left or cx > ladrillo.rect.right:
+      bolita.speed[0] = -bolita.speed[0]
+    else:
+        bolita.speed[1] = -bolita.speed[1]
+    muro.remove(ladrillo)
+
+
   # Rellenar la pantalla.
   pantalla.fill(color_azul)
   # Dibujar la bolita en pantalla
