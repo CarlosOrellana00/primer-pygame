@@ -61,7 +61,7 @@ class Ladrillo(pygame.sprite.Sprite):
     # Cargar Imagen
     self.image = pygame.image.load("imagenes/ladrillo.png")
     # Escalar la imagen a 20x20 píxeles
-    self.image = pygame.transform.scale(self.image, (20, 20))
+    self.image = pygame.transform.scale(self.image, (45, 20))
     # Obtener rectangulo de la imagen
     self.rect = self.image.get_rect()
     # Posicion inicial, provista externamente
@@ -90,7 +90,7 @@ pygame.key.set_repeat(30)
 
 bolita = Bolita()
 jugador = Paleta()
-muro = Muro(10)
+muro = Muro(14)
 
 while True:
   # Establecer FPS
