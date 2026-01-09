@@ -9,6 +9,174 @@ color_blanco = (255,255,255) # Color Blanco para letras
 
 pygame.init()
 
+class Escena:
+  def __init__(self):
+    "Inicialización"
+    self.proximaEscena = False
+    self.jugando = True
+
+  def leer_eventos(self,eventos):
+    "Lee la lista de todos los eventos."
+    pass
+
+  def actualziar(self):
+    "Caclulos y logica."
+    pass
+
+  def dibujar(self, pantalla):
+    "Dibuja los objetos en pantalla."
+    pass
+
+  def cambiar_escena(self, escena):
+    "Selecciona la nueva escena a ser desplegada."
+    self.proximaEscena = escena
+
+class Director:
+  def __init__(self, titulo = "", res = (ancho, alto)):
+    pygame.init()
+    # Inicializando pantalla.
+    pantalla = pygame.display.set_mode((ancho,alto))
+    # Configurar titulo de pantalla
+    pygame.display.set_caption(titulo)
+    # Crear el Reloj
+    reloj = pygame.time.Clock()
+    self.escena = None
+    self.escenas = {}
+
+  def ejecutrar(self, escena_inicial, fps = 60 ):
+    self.escena = self.escenas[escena_inicial]
+    jugando = True
+    while jugando:
+      self.reloj.tick(fps)
+      eventos = pygame.event.get()
+      # Revisar todos los eventos.
+      for evento in eventos:
+        # Si se presiona la tachita de la barra del titulo.
+        if evento.type == pygame.QUIT:
+          # Cerrar el juego
+          juego = False
+
+      self.escena.leer_eventos(eventos)
+      self.escena.actualizar()
+      self.escena.dibujar(self.pantalla)
+
+      self.elegirEscena(self.escena.proximaEscena)
+
+      if jugando:
+        jugando = self.escena.jugando
+
+      pygame.display.flip()
+
+    time.sleep(3)
+
+  def elegirEscena(self, proximaEscena):
+        if proximaEscena:
+            if proximaEscena not in self.escenas:
+                self.agregarEscena(proximaEscena)
+            self.escena = self.escenas[proximaEscena]
+
+  def agregarEscena(self, escena):
+      escenaClase = 'Escena'+escena
+      escenaObj = globals()[escenaClase]
+      self.escenas[escena] = escenaObj()
+
+class EscenaNivel1(Escena):
+    def __init__(self):
+        Escena.__init__(self)
+
+        self.bolita = Bolita()
+        self.jugador = Paleta()
+        self.muro = Muro(50)
+
+        self.puntuacion = 0
+        self.vidas = 3
+        self.esperando_saque = True
+
+        # Ajustar repetición de evento de tecla presionada.
+        pygame.key.set_repeat(30)
+
+    def leer_eventos(self, eventos):
+        for evento in eventos:
+            if evento.type == pygame.KEYDOWN:
+                self.jugador.update(evento)
+                if self.esperando_saque == True and evento.key == pygame.K_SPACE:
+                    self.esperando_saque = False
+                    if self.bolita.rect.centerx < ancho / 2:
+                        self.bolita.speed = [3, -3]
+                    else:
+                        self.bolita.speed = [-3, -3]
+
+    def actualizar(self):
+        # Actualizar posición de la bolita.
+        if self.esperando_saque == False:
+            self.bolita.update()
+        else:
+            self.bolita.rect.midbottom = self.jugador.rect.midtop
+
+        # Colisión entre bolita y jugador.
+        if pygame.sprite.collide_rect(self.bolita, self.jugador):
+            self.bolita.speed[1] = -self.bolita.speed[1]
+
+        # Colisión de la bolita con el muro.
+        lista = pygame.sprite.spritecollide(self.bolita, self.muro, False)
+        if lista:
+            ladrillo = lista[0]
+            cx = self.bolita.rect.centerx
+            if cx < ladrillo.rect.left or cx > ladrillo.rect.right:
+                self.bolita.speed[0] = -self.bolita.speed[0]
+            else:
+                self.bolita.speed[1] = -self.bolita.speed[1]
+            self.muro.remove(ladrillo)
+            self.puntuacion += 10
+
+        # Revisar si bolita sale de la pantalla.
+        if self.bolita.rect.top > ALTO:
+            self.vidas -= 1
+            self.esperando_saque = True
+
+        if self.vidas <= 0:
+            self.cambiar_escena('JuegoTerminado')
+
+    def dibujar(self, pantalla):
+        # Rellenar la pantalla.
+        pantalla.fill(color_azul)
+        # Mostrar puntuación
+        self.mostrar_puntuacion(pantalla)
+        # Mostrar vidas.
+        self.mostrar_vidas(pantalla)
+        # Dibujar bolita en pantalla.
+        pantalla.blit(self.bolita.image, self.bolita.rect)
+        # Dibujar jugador en pantalla.
+        pantalla.blit(self.jugador.image, self.jugador.rect)
+        # Dibujar los ladrillos.
+        self.muro.draw(pantalla)
+
+    def mostrar_puntuacion(self, pantalla):
+        fuente = pygame.font.SysFont('Consolas', 20)
+        texto = fuente.render(str(self.puntuacion).zfill(5), True, color_blanco)
+        texto_rect = texto.get_rect()
+        texto_rect.topleft = [0, 0]
+        pantalla.blit(texto, texto_rect)
+
+    def mostrar_vidas(self, pantalla):
+        fuente = pygame.font.SysFont('Consolas', 20)
+        cadena = "Vidas: " + str(self.vidas).zfill(2)
+        texto = fuente.render(cadena, True, color_blanco)
+        texto_rect = texto.get_rect()
+        texto_rect.topright = [ancho, 0]
+        pantalla.blit(texto, texto_rect)
+
+class EscenaJuegoTerminado(Escena):
+    def actualizar(self):
+        self.jugando = False
+
+    def dibujar(self, pantalla):
+        fuente = pygame.font.SysFont('Arial', 72)
+        texto = fuente.render('Juego terminado :(', True, color_blanco)
+        texto_rect = texto.get_rect()
+        texto_rect.center = [ancho / 2, alto / 2]
+        pantalla.blit(texto, texto_rect)
+
 class Bolita(pygame.sprite.Sprite):
   def __init__(self):
     pygame.sprite.Sprite.__init__(self)
