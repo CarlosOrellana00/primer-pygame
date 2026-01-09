@@ -56,7 +56,7 @@ class Paleta(pygame.sprite.Sprite):
     self.rect.move_ip(self.speed)
 
 class Ladrillo(pygame.sprite.Sprite):
-  def __init__(self):
+  def __init__(self, posicion):
     pygame.sprite.Sprite.__init__(self)
     # Cargar Imagen
     self.image = pygame.image.load("imagenes/ladrillo.png")
@@ -64,6 +64,18 @@ class Ladrillo(pygame.sprite.Sprite):
     self.image = pygame.transform.scale(self.image, (20, 20))
     # Obtener rectangulo de la imagen
     self.rect = self.image.get_rect()
+    # Posicion inicial, provista externamente
+    self.rect.topleft = posicion
+
+class Muro(pygame.sprite.Group):
+  def __init__(self):
+    pygame.sprite.Group.__init__(self)
+
+    ladrillo1 = Ladrillo((0,0))
+    ladrillo2 = Ladrillo((100,100))
+
+    self.add(ladrillo1)
+    self.add(ladrillo2)
 
 # Inicializando pantalla
 pantalla = pygame.display.set_mode((ancho, alto))
@@ -76,6 +88,7 @@ pygame.key.set_repeat(30)
 
 bolita = Bolita()
 jugador = Paleta()
+muro = Muro()
 
 while True:
   # Establecer FPS
@@ -98,6 +111,8 @@ while True:
   pantalla.blit(bolita.image, bolita.rect)
   # Dibujar jugador en pantalla
   pantalla.blit(jugador.image, jugador.rect)
+  # Dibujar los ladrillos del muro
+  muro.draw(pantalla)
   # Actualizar los elementos en pantalla
   pygame.display.flip()
 
