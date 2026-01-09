@@ -68,14 +68,16 @@ class Ladrillo(pygame.sprite.Sprite):
     self.rect.topleft = posicion
 
 class Muro(pygame.sprite.Group):
-  def __init__(self):
+  def __init__(self, cantidadLadrillos):
     pygame.sprite.Group.__init__(self)
 
-    ladrillo1 = Ladrillo((0,0))
-    ladrillo2 = Ladrillo((100,100))
+    pos_x = 0
+    pos_y = 20
+    for i in range(cantidadLadrillos):
+      ladrillo = Ladrillo((pos_x, pos_y))
+      self.add(ladrillo)
 
-    self.add(ladrillo1)
-    self.add(ladrillo2)
+      pos_x += ladrillo.rect.width
 
 # Inicializando pantalla
 pantalla = pygame.display.set_mode((ancho, alto))
@@ -88,7 +90,7 @@ pygame.key.set_repeat(30)
 
 bolita = Bolita()
 jugador = Paleta()
-muro = Muro()
+muro = Muro(10)
 
 while True:
   # Establecer FPS
