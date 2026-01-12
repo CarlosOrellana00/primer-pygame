@@ -1,6 +1,12 @@
+import os
 import sys # para usar exit()
 import time # para usar sleep()
 import pygame
+
+def ruta_recurso(ruta_relativa):
+    # Si está empaquetado con PyInstaller, _MEIPASS apunta a la carpeta temporal donde se extraen recursos
+    base_path = getattr(sys, "_MEIPASS", os.path.dirname(os.path.abspath(__file__)))
+    return os.path.join(base_path, ruta_relativa)
 
 ancho = 640
 alto = 480
@@ -178,7 +184,7 @@ class Bolita(pygame.sprite.Sprite):
   def __init__(self):
     pygame.sprite.Sprite.__init__(self)
     # Cargar Imagen
-    self.image = pygame.image.load("imagenes/bolita.png")
+    self.image = pygame.image.load(ruta_recurso("imagenes/bolita.png"))
     # Escalar la imagen a 20x20 píxeles
     self.image = pygame.transform.scale(self.image, (20, 20))
     # Obtener rectangulo de la imagen
@@ -203,7 +209,7 @@ class Paleta(pygame.sprite.Sprite):
   def __init__(self):
     pygame.sprite.Sprite.__init__(self)
     # Cargar Imagen
-    self.image = pygame.image.load("imagenes/paleta.png")
+    self.image = pygame.image.load(ruta_recurso("imagenes/paleta.png"))
     # Escalar la imagen a 20x20 píxeles
     self.image = pygame.transform.scale(self.image, (60, 20))
     # Obtener rectangulo de la imagen
@@ -228,7 +234,7 @@ class Ladrillo(pygame.sprite.Sprite):
   def __init__(self, posicion):
     pygame.sprite.Sprite.__init__(self)
     # Cargar Imagen
-    self.image = pygame.image.load("imagenes/ladrillo.png")
+    self.image = pygame.image.load(ruta_recurso("imagenes/ladrillo.png"))
     # Escalar la imagen a 20x20 píxeles
     self.image = pygame.transform.scale(self.image, (64, 20))
     # Obtener rectangulo de la imagen
