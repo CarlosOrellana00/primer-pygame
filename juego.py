@@ -253,17 +253,37 @@ class Muro(pygame.sprite.Group):
 
 # Escena Menu
 class EscenaMenu(Escena):
+
+    def __init__(self):
+        super().__init__()
+
     def dibujar(self, pantalla):
         pantalla.fill(color_azul)
-        fuente = pygame.font.SysFont('Arial', 48)
-        texto = fuente.render("Presiona ESPACIO para comenzar", True, color_blanco)
-        rect = texto.get_rect(center=(ancho/2, alto/2))
-        pantalla.blit(texto, rect)
+
+        mensaje = (
+            "Bienvenido\n"
+            "Presiona ESPACIO\n"
+            "para comenzar a jugar"
+        )
+
+        lineas = mensaje.split("\n")
+        fuente = pygame.font.SysFont('Arial', 42)
+
+        # calcular altura total del bloque de texto
+        altura_total = len(lineas) * fuente.get_height()
+        y = alto / 2 - altura_total / 2
+
+        for linea in lineas:
+            texto = fuente.render(linea, True, color_blanco)
+            rect = texto.get_rect(center=(ancho / 2, y))
+            pantalla.blit(texto, rect)
+            y += fuente.get_height()
 
     def leer_eventos(self, eventos):
         for evento in eventos:
             if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
                 self.cambiar_escena("Nivel1")
+
 
 
 # Funcion llamada tras dejar ir la bolita
