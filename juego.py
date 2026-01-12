@@ -251,6 +251,21 @@ class Muro(pygame.sprite.Group):
         pos_x = 0
         pos_y += ladrillo.rect.height
 
+# Escena Menu
+class EscenaMenu(Escena):
+    def dibujar(self, pantalla):
+        pantalla.fill(color_azul)
+        fuente = pygame.font.SysFont('Arial', 48)
+        texto = fuente.render("Presiona ESPACIO para comenzar", True, color_blanco)
+        rect = texto.get_rect(center=(ancho/2, alto/2))
+        pantalla.blit(texto, rect)
+
+    def leer_eventos(self, eventos):
+        for evento in eventos:
+            if evento.type == pygame.KEYDOWN and evento.key == pygame.K_SPACE:
+                self.cambiar_escena("Nivel1")
+
+
 # Funcion llamada tras dejar ir la bolita
 def juego_terminado():
   fuente = pygame.font.SysFont('Arial',72)
@@ -283,5 +298,8 @@ def mostrar_vidas():
 
 if __name__ == "__main__":
   director = Director("Juego de Ladrillos", (ancho, alto))
+  # director.agregarEscena("Nivel1")
+  # director.ejecutar("Nivel1")
+  director.agregarEscena("Menu")
   director.agregarEscena("Nivel1")
-  director.ejecutar("Nivel1")
+  director.ejecutar("Menu")
